@@ -1,9 +1,10 @@
 <html>
 <head>
 	<title>{{ title }}</title>
-	<link rel="stylesheet" type="text/css" href="static/stylesheets/bootstrap.min.css">
-	<script src="static/javascripts/jquery.min.js"></script>
-	<script src="static/javascripts/bootstrap.min.js"></script>a
+	<link rel="stylesheet" href="{{ static_url("stylesheets/main.css") }}">
+<link rel="stylesheet" href="{{ static_url("stylesheets/bootstrap.min.css") }}">
+<script src="{{ static_url("javascripts/jquery.min.js") }}"></script>
+<script src="{{ static_url("javascripts/bootstrap.min.js") }}"></script>
 </head>
 <body>
 	<h1>{{ header }}</h1>
