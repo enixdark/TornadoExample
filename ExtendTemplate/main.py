@@ -3,11 +3,19 @@
 import os
 import tornado
 
-from tornado import web,httpserver,ioloop
+from tornado import web, httpserver, ioloop, escape, auth
 
 from tornado.options import define, options
-
+import pymongo
+import time
 PORT = 8000
+DB_CONFIG = {
+	'HOST':'localhost',
+	'PORT':27017,
+	'DB':'example',
+	'USERNAME':'',
+	'PASSWORD':''
+}
 
 define("port",default=PORT,help='tornado run at %s' % PORT,type=int)
 
@@ -22,12 +30,16 @@ class Application(web.Application):
 			(r'/',IndexHandler),
 			(r'/hello',HelloHander),
 			(r'/books',RecommendedHander)
+			(r'book/edit/([0-9Xx\-]+)',BookEditHandler),
+			(r'book/add',BookEditHandler)
 		]
 		settings = dict(
 		template_path=os.path.join(os.path.dirname(__file__),'templates'),
 		static_path=os.path.join(os.path.dirname(__file__),'static'),
 		ui_modules={'Hello':HelloModule,'Book':BookModule},
 		debug = True)
+		conn = pymongo.Connection(host=DB_CONFIG['HOST'],port=DB_CONFIG['PORT'])
+		self.db = conn['bookstore']
 		# web.Application.__init__(self,handlers,**settings)
 		super(Application,self).__init__(handlers,**settings)
 
@@ -54,25 +66,39 @@ class BookModule(web.UIModule):
 class RecommendedHander(web.RequestHandler):
 
 	def get(self):
+		coll = self.application.db.books
+		books = coll.find()[:10]
 		self.render('recommended.html',page_title="Books | Recommend Reading",
-			header_text="Recommend Reading",books = [
-			{
-				"title":"Programming Collective Intelligence",
-				"subtitle": "Building Smart Web 2.0 Applications",
-				"image":"/static/images/collective_intelligence.gif",
-				"author": "Toby Segaran",
-				"date_added":1310248056,
-				"date_released": "August 2007",
-				"isbn":"978-0-596-52932-1",
-				"description":"<p>This fascinating book demonstrates how you" + 
-				"can build web applications to mine the enormous amount of data created by people" +
-				"on the Internet. With the sophisticated algorithms in this book, you can write" +
-				"smart programs to access interesting datasets from other web sites, collect data"+
-				"from users of your own applications, and analyze and understand the data once"+
-				"you've found it.</p>"
-			}
-			])
+			header_text="Recommend Reading",books = books)
 
+class BookEditHandler(web.RequestHandler):
+	def get(self,isbn=None):
+		book = dict()
+		if isbn:
+			coll = self.application.db.books
+			query = {'isbn':isbn}
+			book = coll.find_one(query)
+		self.render('book_edit.html',
+			page_title='Edit Book',
+			header_text="Edit Book",
+			book = book
+			)
+
+	def post(self,isbn=None):
+		import time
+		book_fields = ['isbn','title','subtitle','image','author','date_realsed','description']
+		coll = self.application.db.books
+		book = dict()
+		if isbn:
+			book = coll.find_one({'isbn':isbn})
+		for key in book_fields:
+			book[key] = self.get_argument(key,None)
+		if isbn:
+			coll.save(book)
+		else:
+			book['date_added'] = int(time.time())
+			coll.insert(book)
+		self.redirect("/recommended")
 
 
 

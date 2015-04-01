@@ -1,0 +1,6 @@
+pika==0.9.14
+tornado>=4.1.0
+requests>=
+pymongo>=2.8.0
+ipdb>=0.8
+requests>=2.5.3

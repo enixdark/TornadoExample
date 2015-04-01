@@ -49,6 +49,7 @@ if __name__ == "__main__":
 			(r'/wrap',WrapHandler),
 			(r"/widget/(\d+)", WidgetHandler),
 		]
+		
 		)
 	http_server = tornado.httpserver.HTTPServer(app)
 	http_server.listen(options.port)

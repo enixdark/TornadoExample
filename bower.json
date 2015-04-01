@@ -1,0 +1,21 @@
+{
+  "name": "Yes",
+  "version": "0.0.0",
+  "homepage": "https://github.com/enixdark/TornadoExample",
+  "authors": [
+    "enixdark <cqshinn92@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.4",
+    "backbone": "~1.1.2",
+    "remarkable-bootstrap-notify": "~3.0.0"
+  }
+}
